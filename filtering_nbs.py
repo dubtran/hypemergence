@@ -91,6 +91,35 @@ def SCcreating_dfs(art_sc):
         dfs_soundcloud[x.encode('ascii', errors = 'ignore')] = full_df
     return dfs_plays, dfs_downloads, dfs_comments, dfs_fans, dfs_soundcloud
 
+'''
+Getting feature matrix for timeseries by taking log(abs(diff(total)))
+@params: filtered: dict of filtered NBS data, media: type of social media platform 
+@return: featuredf: dataframe (rows: artists, cols: plays, downloads, comments)
+'''
+def getwhole_absvar(filtered, media):
+    
+    if media == 'Twitter':
+        plays, dwn, comment, fans, lists, whole = SCcreating_dfs(filtered)
+    else:
+        plays, dwn, comment, fans, whole = SCcreating_dfs(filtered)
+        
+    plays_df = getMovement(plays, 'plays').mean()
+    dwn_df = getMovement(dwn, 'downloads').mean()
+    comment_df = getMovement(comment, 'comment').mean()
+    
+#     lists_df = getAvgFeat(getMovement(lists))
+    featuredf = pd.concat([plays_df, dwn_df, comment_df], axis = 1)
+    featuredf.columns = ['plays', 'downloads', 'comments']
+    return featuredf 
+
+def get_linearregresparams(plays_df):
+    linear_results = dict()
+    for index, vals in plays_df.iterrows():
+        model = LinearRegression()
+        model = model.fit(np.arange(len(vals.values))[:,np.newaxis], vals.values)
+        linear_results[index] = (model.coef_, model.intercept_)
+    return linear_results
+
 if if __name__ == '__main__':
     engine = create_engine('postgresql://dubT:!@localhost:5432/nebulae')
     Cnbs_data = pickle.load(open('../converted_nbs.pkl', 'r'))
