@@ -7,8 +7,9 @@ app = Flask(__name__)
 
 @app.route('/', methods = ['GET'])
 def start_page():
-	blogd = bc.hypem_emergence(4)
-	return render_template('start.html', blogd = blogd)
+	blogd = bc.hypem_emergence(1)
+	sorted = blogd.features.sort(['Results'], ascending = [0])
+	return render_template('start.html', blogd = sorted)
 
 if __name__ == '__main__':
 	
