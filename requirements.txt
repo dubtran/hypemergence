@@ -7,12 +7,6 @@ py==1.4.20
 pycurl==7.19.0
 pyechonest==8.0.2
 pyen==2.3
-pyface==4.4.0
-pyflakes==0.7.3
-pykit==0.2.0
-pyparsing==2.0.1
-pysam==0.6
-pytest==2.5.2
 python-dateutil==2.2
 python-utils==1.5.2
 pytz==2014.4
