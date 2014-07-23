@@ -13,7 +13,6 @@ import nbs_ft
                                                                                                                                                                                                                                                                                                                                                                                                                                            
 eco_api = "NCBSJDMBE39OEZKBZ"
 eco = pyen.Pyen(eco_api)
-engine = create_engine('postgresql://dubT:unicorn!@localhost:5432/nebulae')
 model_info = pickle.load(open('sweetSVM.pkl', 'rb'))
 model = model_info['model']
 model_params = model_info['params']
@@ -123,13 +122,16 @@ class hypem_emergence(object):
 
     def __init__(self, pages):
         
-        self.pitch_df = pd.read_sql('select distinct artist from pitch_artists' , engine)
+        self.pitch_df = pd.read_csv("https://www.kimonolabs.com/api/csv/e9e9pi60?apikey=b84997b282ae1ebcbaca9da9ce786cb9")
         self.artists = getArtists(pages)
         self.features = self.getFeatures()
         self.results = model.predict(self.features)
         self.probas = model.predict_proba(self.features)
         self.for_show = self.complete_it()
         self.images = self.get_images()
+
+    def getPitchList(self):
+        return [x[0][0] for x in self.pitch_df.iterrows()]
 
     def getFeatures(self):
         echo_df = getEcho_df(self.artists)
@@ -138,9 +140,8 @@ class hypem_emergence(object):
         nbs = nbs_ft.convert_json(nbs_dump)
 
         ts_features = ts_featurize(nbs)
-        #print ts_features
 
-        ts_features['p_rising'] = ts_features.index.map(lambda x: int(x in list(self.pitch_df['artist'])) )
+        ts_features['p_rising'] = ts_features.index.map(lambda x: int(x in self.getPitchList() ))
         whole_df = echo_df.join(ts_features, how = 'inner')
         
         whole_df = whole_df[model_info['params']].replace([np.inf, -np.inf], np.nan).fillna(0) 
