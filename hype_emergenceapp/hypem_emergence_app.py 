@@ -7,11 +7,11 @@ app = Flask(__name__)
 
 @app.route('/', methods = ['GET'])
 def start_page():
-	
+	blogd = bc.hypem_emergence(4)
 	return render_template('start.html', blogd = blogd)
 
 if __name__ == '__main__':
 	
-	blogd = bc.hypem_emergence()
-	app.run(port = 8347, host = '0.0.0.0', debug = True)
+	
+	app.run(host = '0.0.0.0', debug = True)
 	

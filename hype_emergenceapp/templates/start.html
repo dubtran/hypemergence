@@ -641,7 +641,7 @@ var skel=function(){var _={config:{prefix:null,preloadStyleSheets:!1,pollOnce:!1
 	body
 	{
 		position: relative;
-		background: url('../images/bg.jpg');
+		background: url('http://37.media.tumblr.com/73d929b34019e13932750f781a054263/tumblr_n89hky2Uic1t876o6o1_400.png');
 		background-size: cover;
 		color: #999;
 		color: rgba(255,255,255,0.6);
@@ -672,6 +672,7 @@ var skel=function(){var _={config:{prefix:null,preloadStyleSheets:!1,pollOnce:!1
 		font-weight: 400;
 		color: #fff;
 	}
+	
 	
 	strong, b
 	{
@@ -730,6 +731,21 @@ var skel=function(){var _={config:{prefix:null,preloadStyleSheets:!1,pollOnce:!1
 			font-weight: 300;
 			line-height: 1em;
 			z-index: 2;
+		}
+		.thumb h3
+		{
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			background: #1a1f2c;
+			background: rgba(20,20,20,0.85);
+			width: 100%;
+			padding: 1em;
+			font-weight: 350;
+			line-height: 1em;
+			z-index: 2;
+			color: #FFFF00;
+			font-size: 2em; 
 		}
 		
 		.thumb img
@@ -1191,7 +1207,7 @@ var skel=function(){var _={config:{prefix:null,preloadStyleSheets:!1,pollOnce:!1
 	#header
 	{
 		position: relative;
-		background: #d64760;
+		background: #83c441;
 		color: #fff;
 	}
 	
@@ -1491,17 +1507,25 @@ var skel=function(){var _={config:{prefix:null,preloadStyleSheets:!1,pollOnce:!1
 					
 						<div id="header" class="item" data-width="400">
 							<h1>HypeM's Emerging</h1>
-							<p>Attempt at</p>
+							<p>What's on HypeM's latest blogged, and if they'll be <em>emerging</em> </p>
 						</div>
 					
 					<!-- Thumb Items -->
 					{% for art in blogd.results %}
 						{% if blogd.images[loop.index] != 'no img' %}
-						<article class="item thumb" data-width="282">
-							<h2>{{blogd.for_show.index[loop.index]}} {{art}}</h2>
+							{% if art == 1 %}
+							<article class="item thumb" data-width="282">
+								<h3>{{blogd.for_show.index[loop.index]}}</h3>
 
-							<a href="{{blogd.images[loop.index]}}"><img src="{{blogd.images[loop.index]}}" alt=""></a>
-						</article>
+								<a href="{{blogd.images[loop.index]}}"><img src="{{blogd.images[loop.index]}}" alt=""></a>
+							</article>
+							{% else %}
+							<article class="item thumb" data-width="282">
+								<h2>{{blogd.for_show.index[loop.index]}}</h2>
+
+								<a href="{{blogd.images[loop.index]}}"><img src="{{blogd.images[loop.index]}}" alt=""></a>
+							</article>
+							{% endif %}
 						{% endif %}
 					{% endfor %}
 

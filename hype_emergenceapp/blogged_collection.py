@@ -1,6 +1,5 @@
 import requests
 import bs4
-from NBSAPIPythonmaster import nbs_api as nbs
 from datetime import datetime
 import json
 import cPickle as pickle 
@@ -10,12 +9,14 @@ from time import sleep
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sqlalchemy import create_engine
-
-nbsAPI = nbs.API('winifredtran')
+import nbs_ft
+                                                                                                                                                                                                                                                                                                                                                                                                                                           
 eco_api = "NCBSJDMBE39OEZKBZ"
 eco = pyen.Pyen(eco_api)
 engine = create_engine('postgresql://dubT:unicorn!@localhost:5432/nebulae')
-model = pickle.load(open('initial_model.pkl', 'rb'))
+model_info = pickle.load(open('sweetSVM.pkl', 'rb'))
+model = model_info['model']
+model_params = model_info['params']
 
 def getArtists(num):
     artists = []
@@ -24,162 +25,92 @@ def getArtists(num):
         data = r.json()
         for d in data.keys():
             if d != 'version': 
-                artists.append(data[d]['artist'])
+                artists.append(data[d]['artist'].encode('ascii', errors = 'ignore').rstrip())
     return list(set(artists))
 
-def getEcho_df(artists):
-	emerge_data = []
+def echo_doc_helper(artists):
+	bio = []
+	blog = []
+	news = []
+	review = []
+	song = []
+	video = []
+	artist = []
 	for a in artists:
-	    try:
-	        emerge_data.append(eco.get('artist/profile', name = str(a), bucket = ['hotttnesss' , 'discovery', 'familiarity']))
-	    except Exception , e: 
-	        print 'cant get ', a 
-	        
-	discover = []
-	hotness = []
-	familiar = []
-	art_p = []
+	    
+	    bio.append(a['artist']['doc_counts']['biographies'])
+	    blog.append(a['artist']['doc_counts']['blogs'])
+	    news.append(a['artist']['doc_counts']['news'])
+	    review.append(a['artist']['doc_counts']['reviews'])
+	    song.append(a['artist']['doc_counts']['songs'])
+	    video.append(a['artist']['doc_counts']['video'])
+	return (np.array(blog, dtype='float') / np.array(song,dtype ='float'))
 
-	for x in emerge_data:
-	    discover.append(x['artist']['discovery'])
-	    hotness.append(x['artist']['hotttnesss'])
-	    familiar.append(x['artist']['familiarity'])
-	    art_p.append(x['artist']['name'].encode('ascii', errors = 'ignore'))
-	temp_pdf = pd.DataFrame(zip(art_p, hotness, discover, familiar))
-	temp_pdf.columns = ['artist', 'hottness', 'discovery', 'familiarity']
-	temp_pdf = temp_pdf.set_index('artist')
 
-	return temp_pdf
-
-def get_NBS(artists):
-    
-    dump_artist = dict()
-    
+def getEcho_df(artists):
+    emerge_data = []
     for a in artists:
-        search = nbsAPI.artistSearch(a.encode('ascii', errors='ignore'))
-        search_json = json.loads(search)
-
-        #finding the exact match if not, default to first search
-        artist_ix = 0
-        for i, x in enumerate(search_json.values()):
-            try:
-                if x['name'].encode('ascii', errors = 'ignore') == a.encode('ascii', errors = 'ignore'): 
-                    artist_ix = i 
-            #Error caused by ill formated names 
-            except Exception,e :
-                print 'error for ', a, ' ', e[0]
-                pass
-
-        key = search_json.keys()[artist_ix]
-        temp = nbsAPI.metricsArtist(key, opt = ['2010-01-01','2014-07-12', 'all' ])
-        temp_json = json.loads(temp)
-        dump_artist[a] = temp_json
-    
-    return dump_artist
-
-def convert_json(dump):
-    converted_nbs = dict()
-    
-    for a in dump.keys():
-        dict_types = dict()
-        print a
-        #unpacking values within artist's indivdual JSON
-        for x in dump[a]:
-            if type(x) == dict:
-                metric_type = x['Service']['name'].encode('ascii', errors = 'ignore')
-                new_dict = dict()
-
-                try:
-                    for key in x['Metric']:
-                        ####CHECK IF THIS IS RIGHT 
-                        if type(x['Metric'][key]) != list: 
-                            days_values = []
-                            for day, value in x['Metric'][key].iteritems():
-                                c_key = np.int16(day).astype('datetime64[D]')
-                                days_values.append((str(c_key),value))
-                            new_dict[key] = days_values   
-                        else:
-                            new_dict[key] = x['Metric'][key]
-                    dict_types[metric_type] = new_dict
-                    ## add the remaining elements of the json - need the keys
-                    dict_types[metric_type].update([x['Profile'], x['Service']])
-                except Exception, e:
-                    print x['Metric']
-                    print 'error ' , e[0]
-        converted_nbs[a.encode('ascii', errors = 'ignore')] = dict_types 
-    return converted_nbs
-
-def filtering_data(d_arts, media): 
-    art_sc = dict()
-    for x in d_arts.keys():
+        art = a.encode('ascii', errors = 'ignore')
+        
         try:
-            if media in d_arts[x].keys():
-                 art_sc[x] = d_arts[x][media]
-        except Exception, e:
-            print e[0]
-    return art_sc
+            emerge_data.append(eco.get('artist/profile', name = art, bucket = ['hotttnesss' , 'discovery', 'familiarity', 'doc_counts']))
 
-def getMovement(artists, media):
-    entire_df = pd.DataFrame()
-    for a, val in artists.iteritems():
-        temp = pd.DataFrame(val)
-        temp = temp.set_index('date')
-        temp[media] = np.log(abs(temp[media].diff(1)))
-        entire_df = pd.concat([entire_df, temp], axis = 1)
-        entire_df = entire_df.rename(columns = {media: a})
-    return entire_df
-
-def SC_df_helper(metric, m_name):
+        except Exception , e: 
+            print 'cant get ', a 
     
-    play_df = pd.DataFrame.from_dict(metric)
-    play_df.columns = ['date', m_name]
-    play_df['date'] = pd.to_datetime(play_df['date'])
-    play_df = play_df.sort('date').reset_index()
-    play_df.pop('index')
-    
-    return play_df
+    discover = []
+    hotness = []
+    familiar = []
+    art_p = []
 
-def SCcreating_dfs(art_sc):
-    dfs_plays = {}
-    dfs_downloads = {}
-    dfs_comments = {}
-    dfs_fans = {}
-    dfs_soundcloud = {}
-    for x in art_sc.keys():
-    	play_df = pd.DataFrame()
-        download_df = pd.DataFrame()
-        comment_df = pd.DataFrame()
-        fan_df = pd.DataFrame()
-        if art_sc[x]['plays']:
-            play_df = SC_df_helper(art_sc[x]['plays'], 'plays') 
-            dfs_plays[ x.encode('ascii', errors = 'ignore').rstrip()] = play_df
+    for x in emerge_data:
+        discover.append(x['artist']['discovery'])
+        hotness.append(x['artist']['hotttnesss'])
+        familiar.append(x['artist']['familiarity'])
+        art_p.append(x['artist']['name'].encode('ascii', errors = 'ignore'))
 
-        if art_sc[x]['downloads']: 
-            download_df = SC_df_helper(art_sc[x]['downloads'], 'downloads')
-            dfs_downloads[ x.encode('ascii', errors = 'ignore').rstrip()] = download_df
+    doc_param = echo_doc_helper(emerge_data)
 
-        if art_sc[x]['comments']:
-            comment_df = SC_df_helper(art_sc[x]['comments'], 'comments')
-            dfs_comments[x.encode('ascii', errors = 'ignore').rstrip()] = comment_df
+    temp_pdf = pd.DataFrame(zip(art_p, hotness, discover, familiar, doc_param))
+    temp_pdf.columns = ['artist', 'hottness', 'discovery', 'familiarity', 'blog/song']
+    temp_pdf = temp_pdf.set_index('artist')
 
-        if art_sc[x]['fans']:
-            fan_df = SC_df_helper(art_sc[x]['fans'], 'fans')
-            dfs_fans[x.encode('ascii', errors = 'ignore').rstrip()] = fan_df
+    return temp_pdf
 
-        full_df = pd.concat([play_df, download_df, comment_df, fan_df], axis = 1)
-        dfs_soundcloud[x.encode('ascii', errors = 'ignore')] = full_df
-    return dfs_plays, dfs_downloads, dfs_comments, dfs_fans, dfs_soundcloud
+def ts_featurize(nbs_data):
 
-def getLinear_feats(df):
-    linear_results = dict()
-    df = df.replace([np.inf, -np.inf], np.nan).fillna(0)
-    for index, vals in df.T.iterrows():
-        model = LinearRegression()
-        model = model.fit(np.arange(len(vals.values))[:,np.newaxis], vals.values)
-        linear_results[index] = (model.coef_[0], model.intercept_)
-    linear_df = pd.DataFrame.from_dict(linear_results).T
-    linear_df.columns = ['lin_coeff', 'plays']
-    return linear_df
+    facebook = ['fans', 'page-story-adds-unique']
+    youtube = ['plays',  'fans', 'likes']
+    instagram = ['friends', 'likes', 'fans', 'comments']
+    lastfm = ['comments', 'fans', 'plays']
+    rdio = ['collections', 'playlists', 'plays']
+    soundcloud = ['comments','fans', 'plays']
+    twitter = ['fans', 'friends', 'lists', 'mentions', 'retweets', 'statuses']
+    youtube = ['fans', 'likes', 'plays']
+    vevo = ['plays']
+
+    fb = nbs_ft.filtering_data(nbs_data, 'Facebook')
+    fbts = nbs_ft.create_ts_features(fb, 'fb', facebook)
+    tartists = nbs_ft.filtering_data(nbs_data, 'Twitter')
+    twit = nbs_ft.create_ts_features(tartists, 'tw', twitter)
+    yartists = nbs_ft.filtering_data(nbs_data, 'YouTube')
+    ytts = nbs_ft.create_ts_features(yartists, 'yt', youtube)
+    ig = nbs_ft.filtering_data(nbs_data, 'Instagram')
+    igts = nbs_ft.create_ts_features(ig, 'ig', instagram)
+    sc = nbs_ft.filtering_data(nbs_data, 'SoundCloud')
+    scts = nbs_ft.create_ts_features(sc, 'sc', soundcloud)
+    lstfm = nbs_ft.filtering_data(nbs_data, 'Last.fm')
+    lstfmts = nbs_ft.create_ts_features(lstfm, 'lf', lastfm)
+    rdio_data = nbs_ft.filtering_data(nbs_data, 'Rdio')
+    rdiots = nbs_ft.create_ts_features(rdio_data, 'rdio', rdio)
+#     vevo_data= nbs_ft.filtering_data(nbs_data, 'Vevo')
+#     vevots = nbs_ft.create_ts_features(vevo_data, 'v', vevo)
+
+    main = pd.concat([fbts, twit, ytts, igts, scts, lstfmts, rdiots], axis = 1)
+
+    return main
+
+
 
 '''
 HypeM Emergence:
@@ -189,57 +120,46 @@ With the features, it then runs the model to predict if they are emerging
 '''
 
 class hypem_emergence(object):
-	
 
-	def __init__(self):
+    def __init__(self, pages):
         
-		self.pitch_df = pd.read_sql('select distinct artist from pitch_artists' , engine)
-		self.artists = getArtists(4)
-		self.features = self.getFeatures()
-		self.results = model.predict(self.features)
-		self.probas = model.predict_proba(self.features)
-		self.for_show = self.complete_it()
-		self.images = self.get_images()
+        self.pitch_df = pd.read_sql('select distinct artist from pitch_artists' , engine)
+        self.artists = getArtists(pages)
+        self.features = self.getFeatures()
+        self.results = model.predict(self.features)
+        self.probas = model.predict_proba(self.features)
+        self.for_show = self.complete_it()
+        self.images = self.get_images()
 
-	def getFeatures(self):
-		echo_df = getEcho_df(self.artists)
+    def getFeatures(self):
+        echo_df = getEcho_df(self.artists)
 
-		nbs_dump = get_NBS(self.artists)
-		nbs = convert_json(nbs_dump)
-		filtered_nbs = filtering_data(nbs, 'SoundCloud')
-		dfs_plays, dfs_downloads, dfs_comments, dfs_fans, dfs_soundcloud = SCcreating_dfs(filtered_nbs)
+        nbs_dump = nbs_ft.get_NBS(self.artists)
+        nbs = nbs_ft.convert_json(nbs_dump)
 
-		sc_dif_df = getMovement(dfs_plays, 'plays')
-		linear_df = getLinear_feats(sc_dif_df)
+        ts_features = ts_featurize(nbs)
+        #print ts_features
 
-		linear_df['p_rising'] = linear_df.index.map(lambda x: int(x in list(self.pitch_df['artist'])) )
-		whole_df = echo_df.join(linear_df, how = 'inner')
-		whole_df = whole_df[['plays', 'discovery', 'familiarity', 'hottness', 'p_rising', 'lin_coeff']]
-		return whole_df 
+        ts_features['p_rising'] = ts_features.index.map(lambda x: int(x in list(self.pitch_df['artist'])) )
+        whole_df = echo_df.join(ts_features, how = 'inner')
+        
+        whole_df = whole_df[model_info['params']].replace([np.inf, -np.inf], np.nan).fillna(0) 
+        return whole_df 
 
-	def get_images(self):
-		images = []
-		for a in self.features.index:
-			temp = eco.get('artist/images', name = str(a), results = 1)
+    def get_images(self):
+        images = []
+        for a in self.features.index:
+            temp = eco.get('artist/images', name = str(a), results = 1)
 
-			if temp['images']:
-				images.append(temp['images'][0]['url'].encode('ascii', errors ='ignore'))
-			else:
-				images.append('no img')
-		return images
+            if temp['images']:
+                images.append(temp['images'][0]['url'].encode('ascii', errors ='ignore'))
+            else:
+                images.append('no img')
+        return images
 
-	def complete_it(self):
-		completed = self.features
-		completed['Results'] = self.results
-		completed['img'] = self.get_images()
-		return completed
-
-
-
-
-
-
-
-
-
+    def complete_it(self):
+        completed = self.features
+        completed['Results'] = self.results
+        completed['img'] = self.get_images()
+        return completed
 
