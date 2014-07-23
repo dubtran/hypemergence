@@ -4,9 +4,6 @@ httplib2==0.8
 ipython==2.1.0
 numpy==1.8.1
 py==1.4.20
-pycosat==0.6.1
-pycparser==2.10
-pycrypto==2.6.1
 pycurl==7.19.0
 pyechonest==8.0.2
 pyen==2.3
