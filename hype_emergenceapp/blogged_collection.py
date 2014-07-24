@@ -24,7 +24,8 @@ def getArtists(num):
         data = r.json()
         for d in data.keys():
             if d != 'version': 
-                artists.append(data[d]['artist'].encode('ascii', errors = 'ignore').rstrip())
+                if data[d]['artist'] != None:
+                    artists.append(data[d]['artist'].encode('ascii', errors = 'ignore').rstrip())
     return list(set(artists))
 
 def echo_doc_helper(artists):
