@@ -1,1 +1,0 @@
-web: gunicorn hypem_emergenceapp:app --log-file=-
