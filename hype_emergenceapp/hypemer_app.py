@@ -3,21 +3,24 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
 import requests
 from sqlalchemy import create_engine
 import psycopg2 as psyco
+import pandas as pd
 
 app = Flask(__name__)
 
 @app.route('/')
 def start_page():
 	
-	cur = conn.cursor()
-	blogd = cur.execute('select * from hypemer_closet limit 15').fetchall()
+	blogd = pd.read_sql('hypemer_closet', engine)
 	sortd_blogd = blogd.sort(['Results'], ascending = [0])
-	
+	sortd_blogd = sortd_blogd.set_index('index')
+	print "Got artists..."
 	return render_template('start.html', blogd = sortd_blogd)
 
 	
 
 if __name__ == '__main__':
-	conn = psyco.connect(dbname = 'hypemerdb')
-	app.run()
+	engine = create_engine('postgresql://ubuntu:hype@localhost:5432/hypemerdb')
+	print "connected to engine" 
+	#conn = psyco.connect(dbname = 'hypemerdb')
+	app.run(host = '0.0.0.0', debug = True)
 	
