@@ -132,6 +132,22 @@
 			font-size: 2em; 
 		}
 		
+		.thumb h4
+		{
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			background: #1a1f2c;
+			background: rgba(20,20,20,0.85);
+			width: 100%;
+			padding: 1em;
+			font-weight: 350;
+			line-height: 1em;
+			z-index: 2;
+			color: #FFFFCC;
+			font-size: 1.5em; 
+		}
+		
 		.thumb img
 		{
 			display: block;

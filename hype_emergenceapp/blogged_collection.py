@@ -159,9 +159,22 @@ class hypem_emergence(object):
                 images.append('no img')
         return images
 
+     def get_soundcloud(self):
+        urls = []
+        for a in self.features.index:
+            traks = sc.get('/tracks', q=a)
+            if traks[0].uri:
+                urls.append(traks[0].uri)
+            else:
+                urls.append('no sc')
+        return urls
+
     def complete_it(self):
         completed = self.features
         completed['Results'] = self.results
+        completed['probas'] =  [x[1] for x in self.probas]
         completed['img'] = self.get_images()
+        completed['soundcloud'] = self.get_soundcloud()
         return completed
+
 
