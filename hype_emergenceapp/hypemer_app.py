@@ -10,8 +10,8 @@ app = Flask(__name__)
 @app.route('/')
 def start_page():
 	
-	blogd = pd.read_sql('hypemer_closet', engine)
-	sortd_blogd = blogd.sort(['Results'], ascending = [0])
+	blogd = pd.read_sql('hypemer_trunk', engine)
+	sortd_blogd = blogd.sort(['probas'], ascending = [0])
 	sortd_blogd = sortd_blogd.set_index('index')
 	print "Got artists..."
 	return render_template('start.html', blogd = sortd_blogd)

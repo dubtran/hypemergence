@@ -54,12 +54,12 @@
 					<!-- Thumb Items -->
 					{% for art in blogd.index %}
 						{% if blogd.ix[art]['img'] != 'no img' %}
-							{% if blogd.ix[art]['Results'] == 1 %}
+							{% if blogd.ix[art]['probas'] > 0.8 %}
 							<article class="item thumb" data-width="282">
 								<h3>{{art}}</h3>
 								<p align = "right"> *emerging*</p>
 
-								<a href="{{blogd.ix[art]['soundcloud']}}"><img src="{{blogd.ix[art]['img']}}" alt=""></a>
+								<a href="{{blogd.ix[art]['soundcloud']}}" data-poptrox="soundcloud"><img src="{{blogd.ix[art]['img']}}" alt=""></a>
 							</article>
 
 							{% elif blogd.ix[art]['probas'] > 0.5 %}
@@ -73,7 +73,7 @@
 							<article class="item thumb" data-width="282">
 								<h2>{{art}}</h2>
 
-								<a href="{{blogd.ix[art]['soundcloud']}}"><img src="{{blogd.ix[art]['img']}}" alt=""></a>
+								<a href="{{blogd.ix[art]['soundcloud']}}" data-poptrox="soundcloud"><img src="{{blogd.ix[art]['img']}}" alt=""></a>
 							</article>
 							{% endif %}
 						{% endif %}

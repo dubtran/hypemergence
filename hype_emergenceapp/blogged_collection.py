@@ -10,12 +10,14 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sqlalchemy import create_engine
 import nbs_ft
+import soundcloud
                                                                                                                                                                                                                                                                                                                                                                                                                                            
 eco_api = "NCBSJDMBE39OEZKBZ"
 eco = pyen.Pyen(eco_api)
 model_info = pickle.load(open('sweetSVM.pkl', 'rb'))
 model = model_info['model']
 model_params = model_info['params']
+sc = soundcloud.Client(client_id="6deaad13ebe3e5d68a5c54c36df9d397")
 
 def getArtists(num):
     artists = []
@@ -159,7 +161,7 @@ class hypem_emergence(object):
                 images.append('no img')
         return images
 
-     def get_soundcloud(self):
+    def get_soundcloud(self):
         urls = []
         for a in self.features.index:
             traks = sc.get('/tracks', q=a)

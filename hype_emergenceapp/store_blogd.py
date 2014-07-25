@@ -13,7 +13,7 @@ def main():
 	#query = 'insert into hypemer_closet( artist, result, img ) values (%s, %s, %s)'
 	#for x in blogd.features[['Results', 'img']].iterrows():
 	#    cur.execute(query, (x[0], x[1][0], x[1][1],))
-	blogd.features[['Results', 'img', 'soundcloud']].to_sql('hypemer_trunk', engine, if_exists='append')
+	blogd.features[['probas', 'img', 'soundcloud']].to_sql('hypemer_trunk', engine, if_exists='replace')
 	conn.commit()
 
 if __name__ == '__main__':
