@@ -9,6 +9,8 @@ HypeMergence is a web app that collects artists from [Hypem's Latest Blogged](ht
 
 Emerging artists are labeled in yellow, whereas artists in white are unfortunately not so much. 
 
+**Check it out here: [HypeMergence](http://bit.ly/1nYCk7q)**
+
 
 ####Required modules
 ---
