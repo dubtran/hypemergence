@@ -19,13 +19,13 @@ def get_NBS(artists):
         #finding the exact match if not, default to first search
         artist_ix = 0
         for i, x in enumerate(search_json.values()):
-            # try:
-            if x['name'].encode('ascii', errors='ignore') == artist: 
-                artist_ix = i 
+            try:
+                if x['name'].encode('ascii', errors='ignore') == artist: 
+                    artist_ix = i 
             #Error caused by ill formated names 
-            # except Exception,e :
-            #     print 'error for ', a, ' ', e[0]
-            #     pass
+            except TypeError,e :
+                print 'error for ', a, ' ', e[0]
+                pass
 
         key = search_json.keys()[artist_ix]
         temp = nbsAPI.metricsArtist(key, opt=['2010-01-01','2014-07-12', 'all' ])
