@@ -12,14 +12,15 @@ def get_NBS(artists):
     dump_artist = dict()
     
     for a in artists:
-        search = nbsAPI.artistSearch(a.encode('ascii', errors='ignore'))
+        artist = a.encode('ascii', errors='ignore').rstrip()
+        search = nbsAPI.artistSearch(artist)
         search_json = json.loads(search)
 
         #finding the exact match if not, default to first search
         artist_ix = 0
         for i, x in enumerate(search_json.values()):
             try:
-                if x['name'].encode('ascii', errors = 'ignore') == a.encode('ascii', errors = 'ignore'): 
+                if x['name'].encode('ascii', errors='ignore') == artist: 
                     artist_ix = i 
             #Error caused by ill formated names 
             except Exception,e :
@@ -27,7 +28,7 @@ def get_NBS(artists):
                 pass
 
         key = search_json.keys()[artist_ix]
-        temp = nbsAPI.metricsArtist(key, opt = ['2010-01-01','2014-07-12', 'all' ])
+        temp = nbsAPI.metricsArtist(key, opt=['2010-01-01','2014-07-12', 'all' ])
         temp_json = json.loads(temp)
         dump_artist[a] = temp_json
     
@@ -69,7 +70,7 @@ def filtering_data(d_arts, media):
     art_sc = dict()
     for x in d_arts.keys():
         try:
-            if media in d_arts[x].keys():
+            if media in d_arts[x]:
                  art_sc[x] = d_arts[x][media]
         except Exception, e:
             print e[0]
@@ -81,8 +82,8 @@ def getMovement(artists, media):
         temp = pd.DataFrame(val)
         temp = temp.set_index('date')
         temp[media] = np.log(abs(temp[media].diff(1)))
-        entire_df = pd.concat([entire_df, temp], axis = 1)
-        entire_df = entire_df.rename(columns = {media: a})
+        entire_df = pd.concat([entire_df, temp], axis=1)
+        entire_df = entire_df.rename(columns={media: a})
     return entire_df
 
 def df_helper(metric, m_name):
@@ -100,7 +101,7 @@ def creating_dfs(artists, metric_types):
     artists_ts = defaultdict(dict)
 
     for a in artists: 
-        artist = a.encode('ascii', errors = 'ignore').rstrip()
+        artist = a.encode('ascii', errors='ignore').rstrip()
         for metric in metric_types:
             try:
                 if artists[a][metric] :
@@ -121,7 +122,7 @@ def create_ts_features(filtered, media, media_metric):
     for x in ts:
         temp = getMovement(ts[x], x)
         maint = getLinear_feats(temp, x, media)
-        main = pd.concat([main, maint], axis = 1)
+        main = pd.concat([main, maint], axis=1)
     
     return main
 

@@ -51,13 +51,14 @@ def echo_doc_helper(artists):
 
 def getEcho_df(artists):
     emerge_data = []
+
     for a in artists:
-        art = a.encode('ascii', errors = 'ignore')
+        art = a.encode('ascii', errors='ignore')
         
         try:
-            emerge_data.append(eco.get('artist/profile', name = art, bucket = ['hotttnesss' , 'discovery', 'familiarity', 'doc_counts']))
+            emerge_data.append(eco.get('artist/profile', name=art, bucket=['hotttnesss' , 'discovery', 'familiarity', 'doc_counts']))
 
-        except Exception , e: 
+        except pyen.PyenException, e: 
             print 'cant get ', a 
     
     discover = []
@@ -69,7 +70,7 @@ def getEcho_df(artists):
         discover.append(x['artist']['discovery'])
         hotness.append(x['artist']['hotttnesss'])
         familiar.append(x['artist']['familiarity'])
-        art_p.append(x['artist']['name'].encode('ascii', errors = 'ignore'))
+        art_p.append(x['artist']['name'].encode('ascii', errors='ignore'))
 
     doc_param = echo_doc_helper(emerge_data)
 
@@ -108,7 +109,7 @@ def ts_featurize(nbs_data):
 #     vevo_data= nbs_ft.filtering_data(nbs_data, 'Vevo')
 #     vevots = nbs_ft.create_ts_features(vevo_data, 'v', vevo)
 
-    main = pd.concat([fbts, twit, ytts, igts, scts, lstfmts, rdiots], axis = 1)
+    main = pd.concat([fbts, twit, ytts, igts, scts, lstfmts, rdiots], axis=1)
 
     return main
 
@@ -145,7 +146,7 @@ class hypem_emergence(object):
         ts_features = ts_featurize(nbs)
 
         ts_features['p_rising'] = ts_features.index.map(lambda x: int(x in self.getPitchList() ))
-        whole_df = echo_df.join(ts_features, how = 'inner')
+        whole_df = echo_df.join(ts_features, how='inner')
         
         whole_df = whole_df[model_info['params']].replace([np.inf, -np.inf], np.nan).fillna(0) 
         return whole_df 
@@ -153,10 +154,10 @@ class hypem_emergence(object):
     def get_images(self):
         images = []
         for a in self.features.index:
-            temp = eco.get('artist/images', name = str(a), results = 1)
+            temp = eco.get('artist/images', name=str(a), results=1)
 
             if temp['images']:
-                images.append(temp['images'][0]['url'].encode('ascii', errors ='ignore'))
+                images.append(temp['images'][0]['url'].encode('ascii', errors='ignore'))
             else:
                 images.append('no img')
         return images
