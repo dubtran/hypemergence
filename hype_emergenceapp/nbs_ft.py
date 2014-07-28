@@ -72,7 +72,7 @@ def filtering_data(d_arts, media):
         try:
             if media in d_arts[x]:
                  art_sc[x] = d_arts[x][media]
-        except Exception, e:
+        except TypeError, e:
             print e[0]
     return art_sc
 
