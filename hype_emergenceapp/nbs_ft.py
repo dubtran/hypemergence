@@ -46,7 +46,7 @@ def convert_json(dump):
                 metric_type = x['Service']['name'].encode('ascii', errors = 'ignore')
                 new_dict = dict()
 
-                try:
+                if x != None:
                     for key in x['Metric']:
                         ####CHECK IF THIS IS RIGHT 
                         if type(x['Metric'][key]) != list: 
@@ -60,9 +60,9 @@ def convert_json(dump):
                     dict_types[metric_type] = new_dict
                     ## add the remaining elements of the json - need the keys
                     dict_types[metric_type].update([x['Profile'], x['Service']])
-                except Exception, e:
-                    print x['Metric']
-                    print 'error ' , e[0]
+                # except Exception, e:
+                #     print x['Metric']
+                #     print 'error ' , e[0]
         converted_nbs[a.encode('ascii', errors = 'ignore')] = dict_types 
     return converted_nbs
 
@@ -73,7 +73,7 @@ def filtering_data(d_arts, media):
             if media in d_arts[x]:
                  art_sc[x] = d_arts[x][media]
         except Exception, e:
-            print e[0]
+            print "new error", e[0]
     return art_sc
 
 def getMovement(artists, media):
@@ -103,11 +103,8 @@ def creating_dfs(artists, metric_types):
     for a in artists: 
         artist = a.encode('ascii', errors='ignore').rstrip()
         for metric in metric_types:
-            try:
-                if artists[a][metric] :
-                    artists_ts[metric][artist] = df_helper(artists[a][metric], metric)
-            except Exception, e:
-                print e[0], a 
+            if artists[a][metric] :
+                artists_ts[metric][artist] = df_helper(artists[a][metric], metric)
     return artists_ts
 
 
