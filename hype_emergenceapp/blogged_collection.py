@@ -133,6 +133,9 @@ class hypem_emergence(object):
         self.probas = model.predict_proba(self.features)
         self.for_show = self.complete_it()
 
+    def getPitchList(self):
+        return [x[0][0] for x in self.pitch_df.iterrows()]
+
     def getFeatures(self):
         echo_df = getEcho_df(self.artists)
 
@@ -141,11 +144,12 @@ class hypem_emergence(object):
 
         ts_features = ts_featurize(nbs)
 
-        ts_features['p_rising'] = ts_features.index.map(lambda x: int(x.replace('_',' ') in list(self.pitch_df['artist'])) )
-        whole_df = echo_df.join(ts_features, how = 'inner')    
+        ts_features['p_rising'] = ts_features.index.map(lambda x: int(x in self.getPitchList() ))
+        whole_df = echo_df.join(ts_features, how='inner')
+        
         whole_df = whole_df[model_info['params']].replace([np.inf, -np.inf], np.nan).fillna(0) 
-
         return whole_df 
+
 
     def get_images(self):
         images = []
