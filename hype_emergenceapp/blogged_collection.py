@@ -10,10 +10,11 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sqlalchemy import create_engine
 import nbs_ft
-import soundcloud
+import soundcloud 
                                                                                                                                                                                                                                                                                                                                                                                                                                            
 eco_api = "NCBSJDMBE39OEZKBZ"
 eco = pyen.Pyen(eco_api)
+engine = create_engine('postgresql://dubT:unicorn!@localhost:5432/nebulae')
 model_info = pickle.load(open('sweetSVM.pkl', 'rb'))
 model = model_info['model']
 model_params = model_info['params']
@@ -25,7 +26,7 @@ def getArtists(num):
         r = requests.get('http://hypem.com/playlist/latest/noremix/json/%d/data.js' % x)
         data = r.json()
         for d in data.keys():
-            if d != 'version': 
+            if d != 'version':
                 if data[d]['artist'] != None:
                     artists.append(data[d]['artist'].encode('ascii', errors = 'ignore').rstrip())
     return list(set(artists))
@@ -51,14 +52,14 @@ def echo_doc_helper(artists):
 
 def getEcho_df(artists):
     emerge_data = []
-
     for a in artists:
-        art = a.encode('ascii', errors='ignore')
+        art = a.encode('ascii', errors = 'ignore')
         
+        #Try for when artists dont exist in Echonest's database. :(
         try:
-            emerge_data.append(eco.get('artist/profile', name=art, bucket=['hotttnesss' , 'discovery', 'familiarity', 'doc_counts']))
+            emerge_data.append(eco.get('artist/profile', name = art, bucket = ['hotttnesss' , 'discovery', 'familiarity', 'doc_counts']))
 
-        except pyen.PyenException, e: 
+        except Exception , e: 
             print 'cant get ', a 
     
     discover = []
@@ -70,7 +71,7 @@ def getEcho_df(artists):
         discover.append(x['artist']['discovery'])
         hotness.append(x['artist']['hotttnesss'])
         familiar.append(x['artist']['familiarity'])
-        art_p.append(x['artist']['name'].encode('ascii', errors='ignore'))
+        art_p.append(x['artist']['name'].encode('ascii', errors = 'ignore').replace(' ', '_'))
 
     doc_param = echo_doc_helper(emerge_data)
 
@@ -109,10 +110,9 @@ def ts_featurize(nbs_data):
 #     vevo_data= nbs_ft.filtering_data(nbs_data, 'Vevo')
 #     vevots = nbs_ft.create_ts_features(vevo_data, 'v', vevo)
 
-    main = pd.concat([fbts, twit, ytts, igts, scts, lstfmts, rdiots], axis=1)
+    main = pd.concat([fbts, twit, ytts, igts, scts, lstfmts, rdiots], axis = 1)
 
     return main
-
 
 
 '''
@@ -126,16 +126,12 @@ class hypem_emergence(object):
 
     def __init__(self, pages):
         
-        self.pitch_df = pd.read_csv("https://www.kimonolabs.com/api/csv/e9e9pi60?apikey=b84997b282ae1ebcbaca9da9ce786cb9")
+        self.pitch_df = pd.read_sql('select distinct artist from pitch_artists' , engine)
         self.artists = getArtists(pages)
         self.features = self.getFeatures()
         self.results = model.predict(self.features)
         self.probas = model.predict_proba(self.features)
         self.for_show = self.complete_it()
-        self.images = self.get_images()
-
-    def getPitchList(self):
-        return [x[0][0] for x in self.pitch_df.iterrows()]
 
     def getFeatures(self):
         echo_df = getEcho_df(self.artists)
@@ -145,27 +141,42 @@ class hypem_emergence(object):
 
         ts_features = ts_featurize(nbs)
 
-        ts_features['p_rising'] = ts_features.index.map(lambda x: int(x in self.getPitchList() ))
-        whole_df = echo_df.join(ts_features, how='inner')
-        
+        ts_features['p_rising'] = ts_features.index.map(lambda x: int(x.replace('_',' ') in list(self.pitch_df['artist'])) )
+        whole_df = echo_df.join(ts_features, how = 'inner')    
         whole_df = whole_df[model_info['params']].replace([np.inf, -np.inf], np.nan).fillna(0) 
+
         return whole_df 
 
     def get_images(self):
         images = []
         for a in self.features.index:
-            temp = eco.get('artist/images', name=str(a), results=1)
+            temp = eco.get('artist/images', name = str(a.replace('_',' ')), results = 1)
 
             if temp['images']:
-                images.append(temp['images'][0]['url'].encode('ascii', errors='ignore'))
+                images.append(temp['images'][0]['url'].encode('ascii', errors ='ignore'))
             else:
                 images.append('no img')
         return images
 
+    def get_urls(self):
+        urls = []
+        for a in self.features.index:
+            temp = eco.get('artist/urls', name = str(a.replace('_',' ')))
+
+            if temp['urls']:
+                if 'official_url' in temp['urls'].keys():
+                    urls.append(temp['urls']['official_url'].encode('ascii', errors ='ignore'))
+                else: 
+                    urls.append(temp['urls'][temp['urls'].keys()[0]])
+            else:
+                urls.append('no site')
+
+        return urls
+
     def get_soundcloud(self):
         urls = []
         for a in self.features.index:
-            traks = sc.get('/tracks', q=a)
+            traks = sc.get('/tracks', q=a.replace('_',' '))
             if traks[0].uri:
                 urls.append(traks[0].uri)
             else:
@@ -177,7 +188,7 @@ class hypem_emergence(object):
         completed['Results'] = self.results
         completed['probas'] =  [x[1] for x in self.probas]
         completed['img'] = self.get_images()
+        completed['url'] = self.get_urls()
         completed['soundcloud'] = self.get_soundcloud()
         return completed
-
 

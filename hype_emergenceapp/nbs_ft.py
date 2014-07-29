@@ -4,31 +4,32 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sqlalchemy import create_engine
 
 nbsAPI = nbs.API('winifredtran') 
+engine = create_engine('postgresql://dubT:unicorn!@localhost:5432/nebulae')
 
 def get_NBS(artists):
     
     dump_artist = dict()
     
     for a in artists:
-        artist = a.encode('ascii', errors='ignore').rstrip()
-        search = nbsAPI.artistSearch(artist)
+        search = nbsAPI.artistSearch(a.encode('ascii', errors='ignore'))
         search_json = json.loads(search)
 
         #finding the exact match if not, default to first search
         artist_ix = 0
         for i, x in enumerate(search_json.values()):
             try:
-                if x['name'].encode('ascii', errors='ignore') == artist: 
+                if x['name'].encode('ascii', errors = 'ignore') == a.encode('ascii', errors = 'ignore'): 
                     artist_ix = i 
             #Error caused by ill formated names 
-            except TypeError,e :
+            except Exception,e :
                 print 'error for ', a, ' ', e[0]
                 pass
 
         key = search_json.keys()[artist_ix]
-        temp = nbsAPI.metricsArtist(key, opt=['2010-01-01','2014-07-12', 'all' ])
+        temp = nbsAPI.metricsArtist(key, opt = ['2010-01-01','2014-07-12', 'all' ])
         temp_json = json.loads(temp)
         dump_artist[a] = temp_json
     
@@ -60,7 +61,7 @@ def convert_json(dump):
                     dict_types[metric_type] = new_dict
                     ## add the remaining elements of the json - need the keys
                     dict_types[metric_type].update([x['Profile'], x['Service']])
-                except TypeError, e:
+                except Exception, e:
                     print x['Metric']
                     print 'error ' , e[0]
         converted_nbs[a.encode('ascii', errors = 'ignore')] = dict_types 
@@ -70,9 +71,9 @@ def filtering_data(d_arts, media):
     art_sc = dict()
     for x in d_arts.keys():
         try:
-            if media in d_arts[x]:
+            if media in d_arts[x].keys():
                  art_sc[x] = d_arts[x][media]
-        except TypeError, e:
+        except Exception, e:
             print e[0]
     return art_sc
 
@@ -82,8 +83,8 @@ def getMovement(artists, media):
         temp = pd.DataFrame(val)
         temp = temp.set_index('date')
         temp[media] = np.log(abs(temp[media].diff(1)))
-        entire_df = pd.concat([entire_df, temp], axis=1)
-        entire_df = entire_df.rename(columns={media: a})
+        entire_df = pd.concat([entire_df, temp], axis = 1)
+        entire_df = entire_df.rename(columns = {media: a.replace(' ', '_')})
     return entire_df
 
 def df_helper(metric, m_name):
@@ -101,28 +102,31 @@ def creating_dfs(artists, metric_types):
     artists_ts = defaultdict(dict)
 
     for a in artists: 
-        artist = a.encode('ascii', errors='ignore').rstrip()
+        artist = a.encode('ascii', errors = 'ignore').rstrip()
         for metric in metric_types:
-            
-            if artists[a][metric] :
-                artists_ts[metric][artist] = df_helper(artists[a][metric], metric)
-            # except Exception, e:
-            #     print e[0], a 
+            try:
+                if artists[a][metric] :
+                    artists_ts[metric][artist] = df_helper(artists[a][metric], metric)
+            except Exception, e:
+                print e[0], a 
     return artists_ts
 
 
 def create_ts_features(filtered, media, media_metric):
-    
-    # if media == 'fb':
-    #     ts = creating_fbdfs(filtered, media_metric)
-    # else:
+
     ts = creating_dfs(filtered, media_metric)
         
     main = pd.DataFrame()
+
     for x in ts:
         temp = getMovement(ts[x], x)
+        print "timeseries keys:  "
+        print ts[x].keys()
+        #to store data for json calls later
+        temp.to_sql((media + x + '_ts'), engine, if_exists = 'replace')
+
         maint = getLinear_feats(temp, x, media)
-        main = pd.concat([main, maint], axis=1)
+        main = pd.concat([main, maint], axis = 1)
     
     return main
 
