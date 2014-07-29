@@ -1,9 +1,11 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, \
+from flask import Flask, Response, request, session, g, redirect, url_for, abort, \
      render_template, flash
 import requests
 from sqlalchemy import create_engine
 import psycopg2 as psyco
 import pandas as pd
+import json
+import numpy as np
 
 app = Flask(__name__)
 
@@ -15,6 +17,17 @@ def start_page():
 	sortd_blogd = sortd_blogd.set_index('index')
 	print "Got artists..."
 	return render_template('start.html', blogd = sortd_blogd)
+
+def change_json(jsn):
+	data = []
+	
+	for key, val in jsn.iteritems():
+		if key != None and val != None:
+			data.append({'x': int(key)/1000, 'y' : val})
+
+	data = sorted(data, key=lambda x: x['x'])
+
+	return data
 
 @app.route('/<artist>')
 def get_json(artist):
