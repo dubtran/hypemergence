@@ -126,7 +126,7 @@ class hypem_emergence(object):
 
     def __init__(self, pages):
         
-        self.pitch_df = pd.read_sql('select distinct artist from pitch_artists' , engine)
+        self.pitch_df = pd.read_csv("https://www.kimonolabs.com/api/csv/e9e9pi60?apikey=b84997b282ae1ebcbaca9da9ce786cb9")
         self.artists = getArtists(pages)
         self.features = self.getFeatures()
         self.results = model.predict(self.features)
