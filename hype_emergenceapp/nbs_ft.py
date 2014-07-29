@@ -7,7 +7,7 @@ from sklearn.linear_model import LinearRegression
 from sqlalchemy import create_engine
 
 nbsAPI = nbs.API('winifredtran') 
-engine = create_engine('postgresql://dubT:unicorn!@localhost:5432/nebulae')
+engine = create_engine('postgresql://ubuntu:hype@localhost:5432/hypemerdb')
 
 def get_NBS(artists):
     
