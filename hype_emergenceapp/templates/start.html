@@ -29,7 +29,19 @@
 		<script src="{{url_for("static", filename = "js/jquery.poptrox.min.js") }}"></script>
 		<script src="{{url_for("static", filename = "js/config.js") }} "></script>
 		<script src="{{url_for("static", filename = "js/skel.min.js") }} "></script>
+		<script src="{{url_for("static", filename = "d3.min.js")}} "></script> 
+		<script src="{{url_for("static", filename = "d3.layout.min.js")}}"></script> 
+		<script src="{{url_for("static", filename = "rickshaw.js")}}"></script>
+
 	<link rel="stylesheet" href=" {{url_for("static", filename = "style.css") }}" type = "text/css">
+	<link rel="stylesheet" href=" {{url_for("static", filename = "rickshaw.css") }}" type = "text/css">
+	<link rel="stylesheet" href=" {{url_for("static", filename = "css/graph.css") }}" type = "text/css">
+	<link rel="stylesheet" href=" {{url_for("static", filename = "css/detail.css") }}" type = "text/css">
+	<link rel="stylesheet" href=" {{url_for("static", filename = "css/extensions.css") }}" type = "text/css">
+	<link rel="stylesheet" href=" {{url_for("static", filename = "css/legend.css") }}" type = "text/css">
+	<link rel="stylesheet" href=" {{url_for("static", filename = "css/lines.css") }}" type = "text/css">
+
+
 		<!--[if lte IE 8]><link rel="stylesheet" href="css/ie8.css" /><![endif]-->
 		
 	</head>
@@ -84,6 +96,8 @@
 				<!-- ******************************************************************************************** -->
 				</div>
 			</div>
+
+			<div id="chart"></div>
 		
 			<div id="footer">
 				
@@ -109,5 +123,74 @@
 
 		</div>
 
+	<script type = 'text/javascript'>
+
+		var mouseenterFn = function() {
+			if (!d3.select("#chart").select('svg').empty()) {
+				return;
+			} 
+
+			var artist = d3.select(this).attr("id"); 
+			var time = new Rickshaw.Fixtures.Time();
+			var timeUnit = time.unit('minutes');
+			var ticksTreatment = 'glow';
+			$("#chart").empty();
+			var ajaxGraph = new Rickshaw.Graph.Ajax({
+				element: document.getElementById("chart"),
+				width: 600,
+				height: 100,
+				dataURL: "/" + artist,
+				onData: function(d){ 
+					return d;
+				},
+				renderer: 'line',
+				onComplete: function (transport) {
+					var graph = transport.graph;
+
+					var x_axis = new Rickshaw.Graph.Axis.Time({ 
+						graph: graph,
+						time: timeUnit
+					 });
+					
+					x_axis.render();
+
+					var y_axis = new Rickshaw.Graph.Axis.Y({
+						graph: graph,
+						tickFormat: Rickshaw.Fixtures.Number.formatKMBT
+					}); 
+					y_axis.render(); 
+
+					var legend = new Rickshaw.Graph.Legend({
+						graph: graph,
+						element: document.querySelector('#chart')
+					});
+					legend.render(); 
+					
+					
+				}
+				,
+				series: [
+					{
+						color: "red",
+						name: "youtube",
+					},
+					{
+						color: "orange",
+						name: "soundcloud",
+					}
+				]
+			}); //end Rickshaw object
+		}
+
+		var mouseoutFn = function () {
+			$("#chart").empty(); 
+		}
+
+		d3.selectAll("article.thumb")
+		  .on("mouseenter", mouseenterFn) //end mouseover 
+		  .on("mouseleave", mouseoutFn)	
+		
+
+	</script>
 	</body>
 </html>
