@@ -3,7 +3,6 @@ HypeMergence
 
 ###Final project for Zipfian Academy: predicting emerging artists from HypeM's Latest Blogged Artists
 --------------------------------------
-~ An attempt to check out *emerging* musicians that are currently being blogged about
 
 HypeMergence is a web app that displays a rank of how emerging artists collected from [Hypem's Latest Blogged](http://hypem.com/latest/noremix) will be. The rank is derived from a support vector machine classification on data from [Echonest](http://the.echonest.com/) and [Next Big Sound(NBS)](https://www.nextbigsound.com/).
 
