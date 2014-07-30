@@ -1,3 +1,7 @@
 *.pyc
+<<<<<<< HEAD
 .DS-Store
 
+=======
+.DS_Store
+>>>>>>> f40d8f0645aef5e8f1d752afa5ac5cad2e950c3c
