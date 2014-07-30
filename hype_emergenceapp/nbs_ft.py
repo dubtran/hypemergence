@@ -9,6 +9,11 @@ from sqlalchemy import create_engine
 nbsAPI = nbs.API('winifredtran') 
 engine = create_engine('postgresql://ubuntu:hype@localhost:5432/hypemerdb')
 
+'''
+Retrieves Next Big Sound data - artists without data will return a TypeError that is caught
+@params: artists: list of artists to retrieve data from 
+@return: json of data
+'''
 def get_NBS(artists):
     
     dump_artist = dict()
@@ -24,7 +29,7 @@ def get_NBS(artists):
                 if x['name'].encode('ascii', errors = 'ignore') == a.encode('ascii', errors = 'ignore'): 
                     artist_ix = i 
             #Error caused by ill formated names 
-            except Exception,e :
+            except TypeError, e :
                 print 'error for ', a, ' ', e[0]
                 pass
 
@@ -35,6 +40,11 @@ def get_NBS(artists):
     
     return dump_artist
 
+'''
+Converts NBS JSON unix date times to readable datetime 
+@params: dump: json 
+@return: json 
+'''
 def convert_json(dump):
     converted_nbs = dict()
     
@@ -67,6 +77,11 @@ def convert_json(dump):
         converted_nbs[a.encode('ascii', errors = 'ignore')] = dict_types 
     return converted_nbs
 
+'''
+Here we go into the NBS json dump to retrieve the time series for various platforms, ie soundcloud, facebook
+@param: d_arts: dictionary of values, media: which media we would like to filter out
+@return : dictionary of the filtered data
+'''
 def filtering_data(d_arts, media): 
     art_sc = dict()
     for x in d_arts.keys():
@@ -77,6 +92,11 @@ def filtering_data(d_arts, media):
             print e[0]
     return art_sc
 
+'''
+finding the log of the absolute value of the difference in plays per day 
+@params: dict of artists and their timeseries
+@return: dataframe of transformed values
+'''
 def getMovement(artists, media):
     entire_df = pd.DataFrame()
     for a, val in artists.iteritems():
@@ -87,6 +107,11 @@ def getMovement(artists, media):
         entire_df = entire_df.rename(columns = {media: a.replace(' ', '_')})
     return entire_df
 
+'''
+helper method for creating dataframes
+@params: metric: the type of metric from the social media platform, m_name: the name of the metric
+@return: dataframe 
+'''
 def df_helper(metric, m_name):
     
     play_df = pd.DataFrame.from_dict(metric)
@@ -97,6 +122,12 @@ def df_helper(metric, m_name):
     
     return play_df
 
+'''
+Creating a dataframe of the values over time for each of the metrics within a social media platform 
+@params: artists: dict of artists and their values for a particular social media platform, 
+metric_types: list of metric types for that social media platform 
+@return: dataframe 
+'''
 def creating_dfs(artists, metric_types):
 
     artists_ts = defaultdict(dict)
@@ -111,7 +142,15 @@ def creating_dfs(artists, metric_types):
                 print e[0], a 
     return artists_ts
 
-
+'''
+With help of helper functions, we create a complete featurized dataframe with artists and their 
+feature values of their linear regression parameters: coefs and intercepts. Before getting the linear
+regression values, we store the movement for webapp's rickshaw graph. 
+@params: filtered: our filtered timeseries data for a particular social media platform and its' metrics
+media: name of social media platform for column labels
+media_metric: metric types for further filtering and column label 
+@return: completed dataframe of features for a social media platform 
+'''
 def create_ts_features(filtered, media, media_metric):
 
     ts = creating_dfs(filtered, media_metric)
@@ -129,6 +168,12 @@ def create_ts_features(filtered, media, media_metric):
     
     return main
 
+'''
+Here we create the params from the linear regression of each time series. 
+The coefs give us the general overall volaititlty over the 90 days, as the intercept gives us the mean log(abs(dif))
+@param: df: filtered movements, metric: the social media metric, media: the social media platform 
+@return: dataframe of the artist and their linear regression results - coefficent and intercept
+'''
 def getLinear_feats(df, metric, media):
     linear_results = dict()
     df = df.replace([np.inf, -np.inf], np.nan).fillna(0)
