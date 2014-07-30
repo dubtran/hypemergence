@@ -54,9 +54,10 @@
 }
 .rickshaw_legend ul {
 	list-style-type: none;
-	margin: 0;
+	margin-top: -95px;
+	margin-bottom: 50px;
 	padding: 0;
-	margin-left: 375px;
+	margin-left: 615px;
 	cursor: pointer;
 }
 .rickshaw_legend li {

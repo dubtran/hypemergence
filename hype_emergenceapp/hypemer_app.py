@@ -34,17 +34,59 @@ def get_json(artist):
 
 	print "Getting JSON for: " + str(artist)
 
-	ytply = pd.read_sql('ytplays_ts', engine).sort('date').set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
-	ytlike = pd.read_sql('ytlikes_ts', engine).sort('date').set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
-	ytfans = pd.read_sql('ytfans_ts', engine).sort('date').set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
-	ytply = ytply.add(ytfans, fill_value=0)
-	yt_j = json.loads(ytply.add(ytlike, fill_value=0).to_json())
-	ytout = change_json(yt_j[artist])
+	#ytply = pd.read_sql('ytplays_ts', engine).sort('date').set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	#ytlike = pd.read_sql('ytlikes_ts', engine).sort('date').set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	#ytfans = pd.read_sql('ytfans_ts', engine).sort('date').set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	#ytply = ytply.add(ytfans, fill_value=0)
+	#yt_j = json.loads(ytply.add(ytlike, fill_value=0).to_json())
+	#ytout = change_json(yt_j[artist])
 
-	scplays_j = json.loads(pd.read_sql('scplays_ts', engine).set_index('date').to_json())
-	scout = change_json(scplays_j[artist])
+	#scplays_j = json.loads(pd.read_sql('scplays_ts', engine).set_index('date').to_json())
+	#scout = change_json(scplays_j[artist])
+	#return Response(json.dumps([{ 'data': ytout, 'name': 'youtube'}, {'data': scout, 'name':'soundcloud'}]),  mimetype='application/json')
 
-	return Response(json.dumps([{ 'data': ytout, 'name': 'youtube'}, {'data': scout, 'name':'soundcloud'}]),  mimetype='application/json')
+	ytfans = pd.read_sql('ytfans_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	ytplays = pd.read_sql('ytfans_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	ytlike = pd.read_sql('ytlikes_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	scplays = pd.read_sql('scplays_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	scfans = pd.read_sql('scfans_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	
+	ytout = []
+	scout = []
+	if artist in ytfans.columns:
+		ytply = ytplays.add(ytfans, fill_value=0)
+		yt_j = json.loads(ytply.add(ytlike, fill_value=0).to_json())
+		ytout = change_json(yt_j[artist])
+
+	if artist in scplays.columns:
+		sc_j = json.loads(scplays.add(scfans, fill_value=0).to_json())
+		scout = change_json(sc_j[artist])
+		
+	twfans = pd.read_sql('twfans_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	twlists = pd.read_sql('twlists_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	twmentions = pd.read_sql('twmentions_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	twretweets = pd.read_sql('twretweets_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	twfriends = pd.read_sql('twfriends_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	
+	fbpage = pd.read_sql('fbpage-story-adds-unique_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+	fbfans = pd.read_sql('fbfans_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
+
+	twout = []
+	fbout = []
+	if artist in twfans.columns:
+		tw = twfans.add(twlists, fill_value=0)
+		tw = tw.add(twmentions, fill_value=0)
+		tw = tw.add(twretweets, fill_value=0)
+		tw_j = json.loads(tw.add(twfriends, fill_value=0).to_json())
+		twout = change_json(tw_j[artist])
+
+	if artist in fbfans.columns:
+		fb_j = json.loads(fbpage.add(fbfans, fill_value=0).to_json())
+		fbout = change_json(fb_j[artist])
+
+	jsn = json.dumps([{ 'data': ytout, 'name': 'youtube'}, {'data': scout, 'name':'soundcloud'}, { 'data': twout, 'name': 'twitter'}, {'data': fbout, 'name':'facebook'}])
+
+	return Response(jsn , mimetype='application/json')
 
 if __name__ == '__main__':
 	engine = create_engine('postgresql://ubuntu:hype@localhost:5432/hypemerdb')
