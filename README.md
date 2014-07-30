@@ -4,7 +4,7 @@ HypeMergence
 ###Final project for Zipfian Academy: predicting emerging artists from HypeM's Latest Blogged Artists
 --------------------------------------
 
-HypeMergence is a web app that displays a rank of how emerging artists collected from [Hypem's Latest Blogged](http://hypem.com/latest/noremix) will be. The rank is derived from a support vector machine classification on data from [Echonest](http://the.echonest.com/) and [Next Big Sound(NBS)](https://www.nextbigsound.com/).
+HypeMergence is a web app that displays a rank of how emerging artists, collected from [Hypem's Latest Blogged](http://hypem.com/latest/noremix), will be. Their rank is derived from a support vector machine classification on data from [Echonest](http://the.echonest.com/) and [Next Big Sound(NBS)](https://www.nextbigsound.com/).
 
 Artists are ranked, from left to right, according to their probablity of being an emerging artist. Emerging artists are labeled in yellow, whereas artists in white are unfortunately not so much. 
 
@@ -14,7 +14,7 @@ Artists are ranked, from left to right, according to their probablity of being a
 
 <img src="https://raw.githubusercontent.com/dubtran/hypemergence/master/imgs/Screen%20Shot%202014-07-29%20at%2011.48.26%20PM.png">
 --------------------------------------
-####Here's what you'll see
+####Here's what you'll see in this github repo
 
 #####Featurization
 
@@ -23,7 +23,7 @@ Artists are ranked, from left to right, according to their probablity of being a
 	- Features: Echonest parameters, and linear regression parameters(coefficient and intercept) of timeseries data
 	- Results: Predicted classification, and probability of classification 
 	- URLs of images for webapp collected from Echonest.
-	- URLs of Soundcloud tracks for webapp from SoundCloud
+	- URLs of SoundCloud tracks for webapp from SoundCloud
 - **nbs_ft.py**: Collection of NBS timeseries data over all social media platforms, including SoundCloud, YouTube, Facebook, etc. Functions parse data and convert their unix datetime to readable datetime. 
 
 #####Webapp
@@ -67,10 +67,10 @@ Alongside these metrics, I have also included Echonest's parameters:
 - familiarity: How well known in artist is. You can look at familiarity as the likelihood that any person selected at random will have heard of the artist.
 - Total blog mentions to song ratio 
 
-For validation, I attempted to classify [Billboard's Emerging Artists](http://realtime.billboard.com/?chart=emergingartists). *My app differs from this because Billboard just takes the top trending tweeted about song/artist within the last 24 hours*
+For validation, I attempted to classify [Billboard's Emerging Artists](http://realtime.billboard.com/?chart=emergingartists). *My app differs from this, because Billboard has a limited list of artists (140) and only takes the top trending tweeted about song/artist within the last 24 hours. Whereas my app, takes an artist that is blogged and tells you if he/she/they  could be on Billboard's*
 
 My linear support vector classifier - from [SKLearn](http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html) - got an accuracy of 94.73%, precision of 98.39%, and recall of 85.91%. <- As a note a lower recall is a problem, because falsely emerging artists can lead to a waste of time or investment. 
 
-With that, if you're interested in getting more insight to the two weeks of my struggles and pains in creating this app, please visit [my blog](www.medium.com/@dubtran)
+With that, if you're interested in getting more insight to the two weeks of my struggles and pains in creating this app, please visit [my blog](http://www.medium.com/@dubtran)
 
 ###Thanks for getting this far and your interest in HypeMergence :D 
