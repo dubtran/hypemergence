@@ -5,16 +5,18 @@ HypeMergence
 --------------------------------------
 ~ An attempt to check out *emerging* musicians that are currently being blogged about
 
-HypeMergence is a web app that collects artists from [Hypem's Latest Blogged](http://hypem.com/latest/noremix) and their data from [Echonest](http://the.echonest.com/) and [Next Big Sound(NBS)](https://www.nextbigsound.com/). It then runs some "magic" or rather *analytics* on the data collected to then show you if the artist will be emerging or not. 
+HypeMergence is a web app that displays a rank of how emerging artists collected from [Hypem's Latest Blogged](http://hypem.com/latest/noremix) will be. The rank is derived from a support vector machine classification on data from [Echonest](http://the.echonest.com/) and [Next Big Sound(NBS)](https://www.nextbigsound.com/).
 
-Artists are ranked, from left to right, according to their probablity of being an emerging artist
+Artists are ranked, from left to right, according to their probablity of being an emerging artist. Emerging artists are labeled in yellow, whereas artists in white are unfortunately not so much. 
 
-Emerging artists are labeled in yellow, whereas artists in white are unfortunately not so much. 
+**Check it out here: [HypeMergence](http://bit.ly/1nYCk7q)(Chrome and Safari only)**
 
-**Check it out here: [HypeMergence](http://bit.ly/1nYCk7q)**
+*For some goodies, if you click the artist you'll get their song via Soundcloud. If you hover, you'll see their social media user change over time - normalized to account for artists with less follwers/listens/etc.*
 
+("")
 --------------------------------------
 ####Here's what you'll see
+
 #####Featurization
 
 - **blogged_collection.py**: Creates an object with the following instances: 
@@ -30,10 +32,44 @@ Emerging artists are labeled in yellow, whereas artists in white are unfortunate
 - **hypemer_app.py**: Flask app
 - **store_blogd.py**: Main module called to cache results created by blogged_collection for webapp access. 
 - **start.html**: Main html for webapp
+- **sweetsvm.pkl**: Main SVM model used predict if artist is emerging or not
 
 ####Required modules
-=======
-* [Flask app](http://flask.pocoo.org/)
 * [NextBigSoundAPI python handler](https://github.com/buckheroux/NBS-API-Python)
 * [Pyen - Echonest python handler](https://github.com/echonest/pyen)
 * [Soundcloud - python handler](https://github.com/soundcloud/soundcloud-python)
+* [Flask app](http://flask.pocoo.org/)
+* [Rickshaw](https://github.com/shutterstock/rickshaw)
+* [D3](https://d3js.org/)
+
+###### *The process of exploring data and choosing which model to use can be seen in the folder work* 
+
+
+----------------
+
+##Hypemergence's purpose and details
+
+Hypemergence is a result of my capstone project for [Zipfian Academy](http://www.zipfianacademy.com/), with the residual benefits of allowing users to see, of those recently blogged (collected on Hypem), who would be worth their time and efforts - or *emerging*. As there are many various attributes to consider when determining if an artist is 'emerging', I have decided to attempt to detect emergence via Social Media metrics. 
+
+Artists' social media metrics were featurized by running a linear regression through a normalized difference over time. The regression returned a coefficient, describing the over all trend over time, and an intercept, repesenting the mean change over time. The metrics spanned over 90 days and include:
+- <u>Facebook</u>: likes and fans
+- <u>SoundCloud</u>: plays, fans, and comments
+- <u>Twitter</u>: mentions, retweets, statuses, friends, and fans
+- <u>YouTube</u>: fans, likes, and plays
+- <u>Last.fm</u>: fans, comments, and plays
+- <u>Instagram</u>: comments, fans, and friends 
+- <u>Rdio</u>: collections, playlists, and plays
+	 
+Alongside these metrics, I have also included Echonest's parameters:
+- hotttnesss: This corresponds to how much buzz the artist is getting right now. This is derived from many sources, including mentions on the web, mentions in music blogs, music reviews, play counts, etc.
+- discovery: This is a measure of how unexpectedly popular the artist is.
+- familiarity: How well known in artist is. You can look at familiarity as the likelihood that any person selected at random will have heard of the artist.
+- Total blog mentions to song ratio 
+
+For validation, I attempted to classify [Billboard's Emerging Artists](http://realtime.billboard.com/?chart=emergingartists). *My app differs from this because Billboard just takes the top trending tweeted about song/artist within the last 24 hours*
+
+My linear support vector classifier - from [SKLearn](http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html) - got an accuracy of 94.73%, precision of 98.39%, and recall of 85.91%. <- As a note a lower recall is a problem, because falsely emerging artists can lead to a waste of time or investment. 
+
+With that, if you're interested in getting more insight to the two weeks of my struggles and pains in creating this app, please visit [my blog](www.medium.com/@dubtran)
+
+###Thanks for getting this far and your interest in Hypemergence :D 
