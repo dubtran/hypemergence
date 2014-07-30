@@ -10,7 +10,7 @@ Artists are ranked, from left to right, according to their probablity of being a
 
 **Check it out here: [HypeMergence](http://bit.ly/1nYCk7q)(Chrome and Safari only)**
 
-*For some goodies, if you click the artist you'll get their song via SoundCloud. If you hover, you'll see the change in tranction of their social media account over time - normalized to account for artists with less overall followers/listens/etc.*
+*For some goodies, if you click the artist you'll get their song via SoundCloud. If you hover, you'll see the change in traction of their social media account over time - normalized to account for artists with less overall followers/listens/etc.*
 
 <img src="https://raw.githubusercontent.com/dubtran/hypemergence/master/imgs/Screen%20Shot%202014-07-29%20at%2011.48.26%20PM.png">
 --------------------------------------
