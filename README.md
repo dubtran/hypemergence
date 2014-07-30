@@ -13,7 +13,7 @@ Artists are ranked, from left to right, according to their probablity of being a
 
 *For some goodies, if you click the artist you'll get their song via Soundcloud. If you hover, you'll see their social media user change over time - normalized to account for artists with less follwers/listens/etc.*
 
-("https://raw.githubusercontent.com/dubtran/hypemergence/master/imgs/Screen%20Shot%202014-07-29%20at%2011.48.26%20PM.png")
+<img>("https://raw.githubusercontent.com/dubtran/hypemergence/master/imgs/Screen%20Shot%202014-07-29%20at%2011.48.26%20PM.png")</img>
 --------------------------------------
 ####Here's what you'll see
 
