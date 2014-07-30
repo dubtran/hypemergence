@@ -34,17 +34,6 @@ def get_json(artist):
 
 	print "Getting JSON for: " + str(artist)
 
-	#ytply = pd.read_sql('ytplays_ts', engine).sort('date').set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
-	#ytlike = pd.read_sql('ytlikes_ts', engine).sort('date').set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
-	#ytfans = pd.read_sql('ytfans_ts', engine).sort('date').set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
-	#ytply = ytply.add(ytfans, fill_value=0)
-	#yt_j = json.loads(ytply.add(ytlike, fill_value=0).to_json())
-	#ytout = change_json(yt_j[artist])
-
-	#scplays_j = json.loads(pd.read_sql('scplays_ts', engine).set_index('date').to_json())
-	#scout = change_json(scplays_j[artist])
-	#return Response(json.dumps([{ 'data': ytout, 'name': 'youtube'}, {'data': scout, 'name':'soundcloud'}]),  mimetype='application/json')
-
 	ytfans = pd.read_sql('ytfans_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
 	ytplays = pd.read_sql('ytfans_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
 	ytlike = pd.read_sql('ytlikes_ts', engine).set_index('date').replace([np.inf, -np.inf], np.nan).fillna(0)
