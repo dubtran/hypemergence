@@ -20,6 +20,12 @@ model = model_info['model']
 model_params = model_info['params']
 sc = soundcloud.Client(client_id="6deaad13ebe3e5d68a5c54c36df9d397")
 
+'''
+Getting list of artists - ROWS - from hypem.
+Here used latest blog posts of noremixes. 
+@param: total : *20 for total artists' names
+@returns: a set of artists collected from hypem's noremix latests
+'''
 def getArtists(num):
     artists = []
     for x in xrange(num):
@@ -31,6 +37,11 @@ def getArtists(num):
                     artists.append(data[d]['artist'].encode('ascii', errors = 'ignore').rstrip())
     return list(set(artists))
 
+'''
+Creates dataframe for echonest blog
+@params: dict of artists with their doc_counts from echonest
+@return: series of their blog to song ratio
+'''
 def echo_doc_helper(artists):
 	bio = []
 	blog = []
@@ -49,7 +60,11 @@ def echo_doc_helper(artists):
 	    video.append(a['artist']['doc_counts']['video'])
 	return (np.array(blog, dtype='float') / np.array(song,dtype ='float'))
 
-
+'''
+Creates a dict of echonest params [hotttness, discovery, familiarity, blog/song]
+@param: list of artists
+@return: dataframe
+'''
 def getEcho_df(artists):
     emerge_data = []
     for a in artists:
@@ -81,6 +96,13 @@ def getEcho_df(artists):
 
     return temp_pdf
 
+'''
+Creates a full dataframe of timeseries features for social media metrics with help of nbs_ft. 
+First filters it to only have data from one social media platform, then creates a df for 
+all of the various metrics. 
+@params: nbs_data: converted data 
+@return: completed timeseries features of various social media platforms for artists 
+'''
 def ts_featurize(nbs_data):
 
     facebook = ['fans', 'page-story-adds-unique']

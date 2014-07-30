@@ -42,16 +42,17 @@ Artists are ranked, from left to right, according to their probablity of being a
 * [Rickshaw](https://github.com/shutterstock/rickshaw)
 * [D3](https://d3js.org/)
 
-###### *The process of exploring data and choosing which model to use can be seen in the folder work* 
+###### *The process of exploring data and choosing which model to use can be seen in the folder theroadtohypemergence* 
 
 
 ----------------
 
-##Hypemergence's purpose and details
+##HypeMergence's purpose and details
 
-Hypemergence is a result of my capstone project for [Zipfian Academy](http://www.zipfianacademy.com/), with the residual benefits of allowing users to see, of those recently blogged (collected on Hypem), who would be worth their time and efforts - or *emerging*. As there are many various attributes to consider when determining if an artist is 'emerging', I have decided to attempt to detect emergence via Social Media metrics. 
+HypeMergence is a result of my capstone project for [Zipfian Academy](http://www.zipfianacademy.com/), with the residual benefits of allowing users to see, of those recently blogged (collected on Hypem), who would be worth their time and efforts - or *emerging*. As there are many various attributes to consider when determining if an artist is 'emerging', I have decided to attempt to detect emergence via Social Media metrics. 
 
 Artists' social media metrics were featurized by running a linear regression through a normalized difference over time. The regression returned a coefficient, describing the over all trend over time, and an intercept, repesenting the mean change over time. The metrics spanned over 90 days and include:
+
 - <u>Facebook</u>: likes and fans
 - <u>SoundCloud</u>: plays, fans, and comments
 - <u>Twitter</u>: mentions, retweets, statuses, friends, and fans
@@ -61,6 +62,7 @@ Artists' social media metrics were featurized by running a linear regression thr
 - <u>Rdio</u>: collections, playlists, and plays
 	 
 Alongside these metrics, I have also included Echonest's parameters:
+
 - hotttnesss: This corresponds to how much buzz the artist is getting right now. This is derived from many sources, including mentions on the web, mentions in music blogs, music reviews, play counts, etc.
 - discovery: This is a measure of how unexpectedly popular the artist is.
 - familiarity: How well known in artist is. You can look at familiarity as the likelihood that any person selected at random will have heard of the artist.
@@ -72,4 +74,4 @@ My linear support vector classifier - from [SKLearn](http://scikit-learn.org/sta
 
 With that, if you're interested in getting more insight to the two weeks of my struggles and pains in creating this app, please visit [my blog](www.medium.com/@dubtran)
 
-###Thanks for getting this far and your interest in Hypemergence :D 
+###Thanks for getting this far and your interest in HypeMergence :D 

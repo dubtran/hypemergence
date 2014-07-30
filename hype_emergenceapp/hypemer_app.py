@@ -18,6 +18,12 @@ def start_page():
 	print "Got artists..."
 	return render_template('start.html', blogd = sortd_blogd)
 
+
+'''
+Module used to convert data points into a readable format for Rickshaw ajax graph
+@param: jsn: json file 
+@return: list of dictionaries of x, y values for Rickshaw 
+'''
 def change_json(jsn):
 	data = []
 	
@@ -29,6 +35,11 @@ def change_json(jsn):
 
 	return data
 
+'''
+Used for hover events. Pulls data from database to then convert and return as a json doc for Rickshaw ajax graph
+@param: artist: artist name to filter out data
+@return: rendered json 
+'''
 @app.route('/<artist>')
 def get_json(artist):
 
