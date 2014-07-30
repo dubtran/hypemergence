@@ -120,8 +120,7 @@ def create_ts_features(filtered, media, media_metric):
 
     for x in ts:
         temp = getMovement(ts[x], x)
-        print "timeseries keys:  "
-        print ts[x].keys()
+        
         #to store data for json calls later
         temp.to_sql((media + x + '_ts'), engine, if_exists = 'replace')
 

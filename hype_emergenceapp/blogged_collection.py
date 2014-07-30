@@ -15,7 +15,7 @@ import soundcloud
 eco_api = "NCBSJDMBE39OEZKBZ"
 eco = pyen.Pyen(eco_api)
 engine = create_engine('postgresql://ubuntu:hype@localhost:5432/hypemerdb')
-model_info = pickle.load(open('sweetSVM.pkl', 'rb'))
+model_info = pickle.load(open('/home/ubuntu/hypemergence/hype_emergenceapp/sweetSVM.pkl', 'rb'))
 model = model_info['model']
 model_params = model_info['params']
 sc = soundcloud.Client(client_id="6deaad13ebe3e5d68a5c54c36df9d397")
