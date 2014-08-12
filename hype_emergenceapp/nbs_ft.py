@@ -29,7 +29,7 @@ def get_NBS(artists):
                 if x['name'].encode('ascii', errors = 'ignore') == a.encode('ascii', errors = 'ignore'): 
                     artist_ix = i 
             #Error caused by ill formated names 
-            except TypeError, e :
+            except Exception, e :
                 print 'error for ', a, ' ', e[0]
                 pass
 
