@@ -8,7 +8,7 @@ HypeMergence is a web app that displays a rank of how emerging artists, collecte
 
 Artists are ranked, from left to right, according to their probablity of being an emerging artist. Emerging artists are labeled in yellow, whereas artists in white are unfortunately not so much. 
 
-**Check it out here: [HypeMergence](http://bit.ly/1nYCk7q)(Chrome and Safari only)**
+**Check it out here: [HypeMergence](http://bit.ly/hypemergencez)(Chrome and Safari only)**
 
 *For some goodies, if you click the artist you'll get their song via SoundCloud. If you hover, you'll see the change in traction of their social media account over time - normalized to account for artists with less overall followers/listens/etc.*
 
